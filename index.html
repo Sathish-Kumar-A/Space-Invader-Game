@@ -1,0 +1,158 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Invaders</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div id="background">
+        <div id="hero"></div>
+        <div id="missiles">
+        </div>
+        <div id="enemies"></div>
+        
+    </div>
+    <script>
+        let enemies = [
+            { left: 200, top: 100 },
+            { left: 300, top: 100 },
+            { left: 400, top: 100 },
+            { left: 500, top: 100 },
+            { left: 600, top: 100 },
+            { left: 700, top: 100 },
+            { left: 800, top: 100 },
+            { left: 900, top: 100 },
+            { left: 200, top: 175 },
+            { left: 300, top: 175 },
+            { left: 400, top: 175 },
+            { left: 500, top: 175 },
+            { left: 600, top: 175 },
+            { left: 700, top: 175 },
+            { left: 800, top: 175 },
+            { left: 900, top: 175 }
+        ];
+
+        //Setting Hero position
+         let hero={
+            top:700,
+            left:575
+        }
+
+        let missiles=[];
+
+        //keyboard activity
+
+        document.onkeydown=function movehero(event){
+            const left=37;
+            const right=39;
+            const space=32;
+            if(event.keyCode==left){
+                document.querySelector('#hero').style.left=hero.left-10;
+                if(hero.left>20){
+                    hero.left-=10;
+                }
+            }
+            if(event.keyCode==right){
+                document.querySelector('#hero').style.left=hero.left+10;
+                if(hero.left<1130){
+                    hero.left+=10;
+                }
+            }
+            if (event.keyCode === space) {
+                missiles.push({
+                left: hero.left + 20,
+                top: hero.top - 20,
+                });
+                drawMissiles();
+  }
+            console.log(event.keyCode)
+        }
+        //draw Missiles
+        function drawMissiles() {
+            document.querySelector("#missiles").innerHTML = "";
+            missiles.forEach((pos) => {
+                document.querySelector("#missiles").innerHTML += `
+                    <div class="missile1" style="left:${pos.left}; top: ${pos.top}"></div>
+                    `;
+            });
+}
+        //draw enemies
+        function drawenemies(){
+            document.querySelector('#enemies').innerHTML=``
+            for(let enemy of enemies){
+                document.querySelector('#enemies').innerHTML+=`
+                <div class="enemy" style="left:${enemy.left}; top:${enemy.top}"></div>
+                `;
+            }
+        }
+        drawenemies();
+
+        //enemy moving
+        function moveenemies(){
+            enemies=enemies.map((pos)=>({...pos,top:pos.top+2}))
+        }
+
+        //missileMoving
+        function moveMissiles(){
+            missiles=missiles.map((pos)=>({...pos,top:pos.top -30}));
+        }
+
+        //Check Collision
+        function collision(){
+            for(let i=0;i<enemies.length;i++){
+                for(let j=0;j<missiles.length;j++){
+                    if(
+                        missiles[j].top>=enemies[i].top &&
+                        missiles[j].top<=enemies[i].top +50 &&
+                        missiles[j].left>=enemies[i].left &&
+                        missiles[j].left<=enemies[i].left +50
+                    ){
+                        enemies.splice(i,1);
+                        missiles.splice(j,1);
+                    }
+                }
+            }
+        }
+
+        //Game Over
+        function gameover(){
+            let enemieslength=enemies.length;
+            if(enemieslength===0){
+                let background=document.querySelector('#background');
+                let division=document.createElement('div');
+                division.className="gameresult";
+                division.innerText="You Won Champ 🏆!!!";
+                background.append(division);
+                clearInterval(clearAll);
+                document.onkeydown=null;
+            }
+            else{
+                for(var k =0;k<enemieslength;k++){
+                    if(enemies[k].top>= hero.top -40){
+                        let background=document.querySelector('#background');
+                        let division=document.createElement('div');
+                        division.className="gameresult";
+                        division.innerText="Better Luck Next Time :(";
+                        background.append(division);
+                        clearInterval(clearAll);
+                        document.onkeydown=null;
+                    }
+                }
+            }
+        }
+        let clearAll=setInterval(()=>{
+            moveenemies();
+            drawenemies();
+            moveMissiles();
+            drawMissiles();
+            collision();
+            gameover();
+        },1000/5);
+
+    </script>
+</body>
+
+</html>
